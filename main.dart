@@ -1,21 +1,29 @@
 void main() {
-  Produto produto1 = Produto("Café", 7.50);
-  Produto produto2 = Produto("Feijão ", 20.99);
+  Produto produto1 = Produto(descricao: "Cafe", preco: 20);
+  Produto produto2 = Produto(descricao: "Feijão", preco: 32);
 
-  PedidoItems pedidoitem1 = PedidoItems(quantidade: 3, produto: produto1);
-  pedidoitem1.calcTotalItem();
-
-  PedidoItems pedidoitem2 = PedidoItems(quantidade: 5, produto: produto2);
-  pedidoitem2.calcTotalItem();
+  PedidoItem pedidoitem1 = PedidoItem(quantidade: 3, produto: produto1);
+  PedidoItem pedidoitem2 = PedidoItem(quantidade: 5, produto: produto2);
 
   Pedido pedidoteste =
-      Pedido(data: DateTime.now(), items: [pedidoitem1, pedidoitem2]);
+      Pedido(data: DateTime.now(), itens: [pedidoitem1, pedidoitem2]);
 
   print("///////////////////////////////////");
   print("Lista de itens do pedido: \n");
   pedidoteste.listarItems();
+
   print("///////////////////////////////////\n");
-  print("Total pedido: R\$ ${pedidoteste.calcTotalPedido()}\n");
+
+  var data = pedidoteste.data.toString();
+
+  var dataconvertida = data.substring(0, 10).split('-');
+
+  var dia = dataconvertida[2];
+  var mes = dataconvertida[1];
+  var ano = dataconvertida[0];
+  print("${dia}/${mes}/${ano}");
+
+  print("Total pedido: R\$ ${pedidoteste.TotalPedido()}\n");
   print("Obrigado pela preferência! Volte sempre! :)\n");
   print("///////////////////////////////////");
 }
@@ -24,42 +32,40 @@ class Produto {
   String descricao;
   double preco;
 
-  Produto(this.descricao, this.preco);
+  Produto({required this.descricao, required this.preco});
 }
 
-class PedidoItems extends Produto {
-  late double quantidade;
-  late double total;
-  late Produto produto;
+class PedidoItem extends Produto {
+  double quantidade;
+  Produto produto;
 
-  PedidoItems({
+  PedidoItem({
     required this.quantidade,
     required this.produto,
-  }) : super(produto.descricao, produto.preco);
+  }) : super(descricao: produto.descricao, preco: produto.preco);
 
-  calcTotalItem() {
-    this.total = produto.preco * quantidade;
-  }
+  double total() => quantidade * preco;
 }
 
 class Pedido {
-  late DateTime data;
+  DateTime data;
+  List<PedidoItem> itens;
   late double total;
-  late List<PedidoItems> items;
 
   Pedido({
     required this.data,
-    required this.items,
+    required this.itens,
   });
 
-  calcTotalPedido() {
-    this.total = items.map((item) => item.total).reduce((i, j) => i + j);
+  TotalPedido() {
+    //this.total = items.map((item) => item.calcTotal()).reduce((i, j) => i + j);
+    this.total = itens.fold(0, (item, e) => item + e.total());
     var totalString = total.toStringAsFixed(2);
     return totalString;
   }
 
   listarItems() {
-    items
+    itens
         .map((produto) => print(
             "${produto.descricao} QTD ${produto.quantidade} R\$ ${produto.preco} \n"))
         .toList();
